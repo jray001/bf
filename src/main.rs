@@ -44,8 +44,6 @@ fn interpret(instructions: &str) -> Result<(), String> {
         return Err("Unbalanced parentheses".into());
     }
 
-    let mut total_instructions: u128 = 0;
-
     while ins_index < ins_length {
         let command = instructions[ins_index];
         match command {
@@ -119,7 +117,6 @@ fn interpret(instructions: &str) -> Result<(), String> {
         }
 
         ins_index += 1;
-        total_instructions += 1;
     }
     Ok(())
 }
