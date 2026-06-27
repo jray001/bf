@@ -44,6 +44,8 @@ fn interpret(instructions: &str) -> Result<(), String> {
         return Err("Unbalanced parentheses".into());
     }
 
+    let mut total_instructions: u128 = 0;
+
     while ins_index < ins_length {
         let command = instructions[ins_index];
         match command {
@@ -83,20 +85,24 @@ fn interpret(instructions: &str) -> Result<(), String> {
 
                 io::stdout()
                     .write_all(&[tape[tape_index]])
-                    .map_err(|_| "Failed to write to stdout".to_string())?;
+                    .map_err(|e| "Failed to write to stdout: {e}".to_string())?;
             }
             b',' => {
                 // read input
 
                 let mut input = [0u8; 1];
 
+                let mut input = [0u8; 1];
                 io::stdout()
                     .flush()
-                    .map_err(|_| "Failed to flush stdout".to_string())?;
-                io::stdin()
-                    .read_exact(&mut input)
-                    .map_err(|_| "Invalid input".to_string())?;
-                tape[tape_index] = input[0];
+                    .map_err(|e| format!("Failed to flush stdout: {e}"))?;
+                match io::stdin()
+                    .read(&mut input)
+                    .map_err(|e| format!("Failed to read stdin: {e}"))?
+                {
+                    0 => tape[tape_index] = 0, // EOF → set cell to 0
+                    _ => tape[tape_index] = input[0],
+                }
             }
             b'[' => {
                 // jump from left to right brackets, vice versa
@@ -113,8 +119,8 @@ fn interpret(instructions: &str) -> Result<(), String> {
         }
 
         ins_index += 1;
+        total_instructions += 1;
     }
-
     Ok(())
 }
 
