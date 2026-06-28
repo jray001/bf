@@ -1,8 +1,5 @@
 use std::{
-    collections::HashMap,
-    error::Error,
-    fs,
-    io::{self, Read, Write},
+    collections::HashMap, error::Error, fs::{self, File}, io::{self, BufReader, Read, Write},
 };
 const TAPE_LENGTH: usize = 30000;
 
@@ -129,7 +126,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Err("Not enough arguments".into());
     }
 
-    let mut contents = fs::read_to_string(&args[1])?;
+    let my_file = File::open(&args[1])?;
+    let mut reader = BufReader::new(my_file);
+    
+    let mut contents = String::new();
+    reader.read_to_string(&mut contents)?;
 
     // ignore whitespace
     contents.retain(|c| !c.is_whitespace());
